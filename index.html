@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Avaliação – Folha de Pagamento</title>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        background: #0f172a;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        user-select: none;
+    }
+
+    .container {
+        background: #020617;
+        border-radius: 16px;
+        padding: 30px;
+        width: 80%;
+        max-width: 900px;
+        text-align: center;
+        box-shadow: 0 0 25px rgba(0,0,0,0.7);
+    }
+
+    canvas {
+        background: #020617;
+        border: 2px solid #2563eb;
+        border-radius: 12px;
+    }
+
+    button {
+        margin-top: 25px;
+        padding: 14px 40px;
+        font-size: 16px;
+        border: none;
+        border-radius: 10px;
+        background: #2563eb;
+        color: white;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #1e40af;
+    }
+
+    .progress {
+        margin-top: 15px;
+        font-size: 14px;
+        color: #94a3b8;
+    }
+</style>
+</head>
+
+<body oncontextmenu="return false">
+
+<div class="container">
+    <canvas id="questaoCanvas" width="800" height="260"></canvas>
+    <button onclick="proximaQuestao()">Próxima questão</button>
+    <div class="progress" id="progress"></div>
+</div>
+
+<script>
+const questoes = [
+"Explique a importância da folha de pagamento como documento contábil e administrativo, destacando os riscos legais e financeiros decorrentes de seu preenchimento incorreto.",
+"Analise a relação entre folha de pagamento e compliance trabalhista, considerando o cumprimento da CLT e das normas previdenciárias e fiscais.",
+"Diferencie salário bruto e salário líquido, explicando por que o salário líquido representa a remuneração real do trabalhador.",
+"Descreva como os descontos legais impactam o planejamento financeiro pessoal do empregado e a gestão de custos da empresa.",
+"Explique, de forma detalhada, como o INSS e o Imposto de Renda influenciam a composição do salário líquido.",
+"Analise a função social da folha de pagamento no contexto das obrigações trabalhistas e previdenciárias.",
+"Explique o conceito de componentes salariais e discuta sua relevância para a correta apuração da remuneração do trabalhador.",
+"Descreva situações em que descontos autorizados podem reduzir significativamente o salário líquido e analise os impactos disso para o empregado.",
+"Explique o Descanso Semanal Remunerado (DSR) como direito trabalhista, destacando seus objetivos sociais e de saúde do trabalhador.",
+"Analise a importância do DSR na preservação do equilíbrio entre vida profissional e vida pessoal do empregado.",
+"Explique como a remuneração variável influencia o valor do DSR e por que esse reflexo é obrigatório.",
+"Descreva o impacto das horas extras no cálculo do DSR e na remuneração final do trabalhador.",
+"Analise por que adicionais como horas extras e adicional noturno não podem ser desconsiderados no cálculo do DSR.",
+"Explique o conceito de cálculos trabalhistas e sua função dentro da gestão de pessoas.",
+"Analise as consequências legais e financeiras de erros nos cálculos trabalhistas para a empresa.",
+"Explique a relação entre cálculos trabalhistas, folha de pagamento e fiscalização dos órgãos competentes.",
+"Descreva como a folha de pagamento contribui para a transparência na relação entre empregador e empregado.",
+"Analise a importância da correta discriminação de salários, adicionais, benefícios e descontos na folha de pagamento.",
+"Explique como o salário líquido influencia diretamente a qualidade de vida do trabalhador e sua motivação profissional.",
+"Analise a função da folha de pagamento como instrumento de controle administrativo e financeiro da empresa.",
+"Explique por que a folha de pagamento é considerada um documento essencial em auditorias trabalhistas e fiscais.",
+"Descreva como os componentes salariais podem variar conforme o tipo de remuneração adotado pela empresa.",
+"Analise a relação entre remuneração variável, produtividade e impacto no valor final recebido pelo trabalhador.",
+"Explique por que o correto cálculo da folha de pagamento é fundamental para evitar passivos trabalhistas.",
+"Explique como a folha de pagamento atua como instrumento de registro histórico das relações trabalhistas entre empregado e empregador.",
+"Analise a importância da correta apuração dos descontos legais para a credibilidade da empresa perante seus colaboradores.",
+"Descreva o papel da folha de pagamento no controle das obrigações previdenciárias e fiscais da organização.",
+"Explique por que o salário líquido deve ser considerado o principal indicador da remuneração efetiva do trabalhador.",
+"Analise os impactos da incorporação de horas extras e adicionais no DSR sobre o custo total da folha de pagamento.",
+"Descreva como erros na identificação dos componentes salariais podem gerar conflitos trabalhistas.",
+"Explique a relação entre cálculos trabalhistas corretos e a redução de ações judiciais movidas por empregados.",
+"Analise de que forma a folha de pagamento contribui para a transparência e a confiança na gestão de pessoas.",
+"Explique como a legislação trabalhista influencia diretamente a estrutura e a elaboração da folha de pagamento.",
+"Analise a relevância dos cálculos trabalhistas para o equilíbrio financeiro da empresa e a garantia dos direitos do trabalhador.",
+"Analise de que forma a folha de pagamento reflete a responsabilidade social e legal da empresa perante seus empregados."
+];
+
+let indice = 0;
+const canvas = document.getElementById("questaoCanvas");
+const ctx = canvas.getContext("2d");
+
+function desenharQuestao() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#f8fafc";
+    ctx.font = "20px Arial";
+
+    const texto = `Questão ${indice + 1}:\n\n${questoes[indice]}`;
+    const linhas = quebrarTexto(texto, 60);
+
+    let y = 40;
+    linhas.forEach(linha => {
+        ctx.fillText(linha, 30, y);
+        y += 30;
+    });
+
+    document.getElementById("progress").innerText =
+        `Questão ${indice + 1} de ${questoes.length}`;
+}
+
+function quebrarTexto(texto, maxChars) {
+    const palavras = texto.split(" ");
+    let linha = "";
+    let linhas = [];
+
+    palavras.forEach(p => {
+        if ((linha + p).length > maxChars) {
+            linhas.push(linha);
+            linha = p + " ";
+        } else {
+            linha += p + " ";
+        }
+    });
+
+    linhas.push(linha);
+    return linhas;
+}
+
+function proximaQuestao() {
+    if (indice < questoes.length - 1) {
+        indice++;
+        desenharQuestao();
+    } else {
+        alert("Avaliação finalizada.");
+    }
+}
+
+desenharQuestao();
+</script>
+
+</body>
+</html>
